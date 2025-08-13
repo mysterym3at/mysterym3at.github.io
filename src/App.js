@@ -14,19 +14,19 @@ const App = () => {
       {/* Simple navigation links */}
       <nav style={{ marginBottom: 20 }}>
         <Link to="/" style={{ marginRight: 15 }}>
-          Admin - Handbags
+         Search - Handbags
         </Link>
          <Link to="/add"  style={{ marginRight: 15 }}>Add Handbags</Link>
         <Link to="/export"  style={{ marginRight: 15 }}>Export JSON Handbags</Link>
-        <Link to="/search">Search Handbags</Link>
+        <Link to="/update">Admin Update Handbags</Link>
       </nav>
 
       {/* Define routes */}
       <Routes>
-        <Route path="/" element={<Handbags />} />
+        <Route path="/update" element={<Handbags />} />
             <Route path="/add" element={<AddHandbagButton />} />
              <Route path="/export" element={<HandbagsJsonViewer />} />
-        <Route path="/search" element={<HandbagSearch />} />
+        <Route path="/" element={<HandbagSearch />} />
         {/* Add more routes here as needed */}
       </Routes>
     </div>
