@@ -1,0 +1,36 @@
+name: Build and Deploy to GitHub Pages
+
+# Run this workflow on pushes to the main branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout main branch
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # ensures full history for certain operations
+
+    - name: Set up Node.js environment
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'  # use your desired Node version
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build project
+      run: npm run build  # your project should output to ./build folder
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}  # token injected by GitHub Actions
+        publish_dir: ./build  # folder to deploy
+        publish_branch: gh-pages  # branch to push to (default)
+        commit_message: "Deploy site from GitHub Actions"
