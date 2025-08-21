@@ -11,7 +11,9 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { db } from "../firebase"; // Adjust path if needed
+import { db } from "../firebase"; 
+
+
 
 
 const handbagsCollectionRef = collection(db, "handbags");

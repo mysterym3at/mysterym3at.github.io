@@ -1,7 +1,7 @@
 
 const productsData = [];
 let
-season = "AW25",
+season = "SS24",
 arr = [],
 sizeArr = [],
 rdate="08-08-2025",
@@ -11,7 +11,8 @@ colorArr = ["Green", "Brown", "Cream"],
 themeArr = ["Food","Dessert","Autumn"],
 collectionImage,
 range="Shopfront",
-name1="Vendula Pie Shop";
+name1="Fairy Village",
+xArr = []
 
 let obj = {
         season:season,
@@ -30,32 +31,34 @@ let obj = {
       favourite: false
       }
 
+function onlyUnique(value, index, array) {
+  return array.indexOf(value) === index;
+}
 // query prods
-document.querySelectorAll('.products.wrapper.mgs-products.grid.products-grid.mf-initial > ol > li.item.product').forEach(product => {
-    const favourite = false;
-  // Get price text
-  const priceEl = product.querySelector('.price-box .price');
-  const price = priceEl ? priceEl.textContent.trim() : null;
+document.querySelectorAll('.hCL').forEach(product => {
+const favourite = false;
+// Get price text
+const priceEl = ""
+const price = priceEl ? priceEl.textContent.trim() : null;
 //const price = parseInt(price1, 10)
   // Get second-thumb image inside the product
-  const secondThumbImg = product.querySelector('.second-thumb img.product-image-photo');
-  const imageUrl = secondThumbImg ? secondThumbImg.src : null;
- let name = secondThumbImg ? secondThumbImg.alt : null;
+ // const secondThumbImg = product.querySelector('.hCL');
+const imageUrl = product ? product.src : null;
+const alt = product.alt
+const name2 = product ? product.alt : null;
+const name= name2.split(":",2).pop()
+// console.log(name)
 //category 
-let category = getCat(name)
+const category = getCat(name)
 
-  // get category
- function getCat(n) {
-    var catArr = ["Wallet","Purse","Bag","Backpack","Crossbody","Phone Case","Strap","Charm", "Accessory"];
+function getCat(n) {
+    var catArr = ["Wallet","Purse","Bag","Tote","Backpack","Phone Case","Strap","Charm", "Accessory"];
      var c = [];
-
-  
     catArr.forEach(ca => { 
-   
     var s = n.search(ca);
     var newName;
      if(s > 0) {
-         if(ca == "Bag"){
+         if(ca == "Bag" || ca == "Tote") {
             newName = "Handbag"
          }else {
             newName = ca;
@@ -80,23 +83,19 @@ let category = getCat(name)
 //shape
 const shape = name.replace(name1,"").trim();
 
-
-  desArr.push({
-    price,
-    shape,
-    category,
-    favourite,
-    name,
-    imageUrl
-  
-  });
+if(name.includes(name1)){
+ xArr.push(shape);
+}
+  //  console.log(name2.includes(name1))
 });
-productsData.push(obj)
-
-console.log(JSON.stringify(productsData, null, 2));
+var unique = xArr.filter(onlyUnique);
 
 
-document.querySelectorAll('url').forEach(p => {
-console.log(p)
+//productsData.push(obj)
+//console.log(xArr)
+//console.log(JSON.stringify(productsData, null, 2));
 
-})
+// usage example:
+
+
+console.log(unique); 

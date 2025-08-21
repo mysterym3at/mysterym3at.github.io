@@ -1,3 +1,4 @@
+/*https://www.vendulalondon.com/sitemap.xml */
 
 const productsData = [];
 let

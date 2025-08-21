@@ -4,7 +4,15 @@ import { BrowserRouter } from "react-router-dom";
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+/*import { uploadImageToCloudflare } from './cloudflare.js';
+import { saveImageMetadataToFirestore } from './firestore.js';
 
+export async function processImage(filePath) {
+  const imageData = await uploadImageToCloudflare(filePath);
+  await saveImageMetadataToFirestore(imageData);
+  console.log('Done processing:', imageData.id);
+}
+*/
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

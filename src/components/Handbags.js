@@ -9,6 +9,15 @@ const gbpFormatter = new Intl.NumberFormat("en-GB", {
   minimumFractionDigits: 2,
 });
 
+const emptyDesign = {
+  name: "",
+  shape: "",
+  price: "",
+  categories: [],
+  imageUrls: [],
+  favourite: false,
+};
+
 const Handbags = () => {
   const [handbags, setHandbags] = useState([]);
 
@@ -21,21 +30,23 @@ const Handbags = () => {
    const [imageUrl, setImageUrl] = useState("");
    const [description, setDescription] = useState("");
    const [video, setVideo] = useState("");
-    const [pin, setPin] = useState("");
+   const [pin, setPin] = useState("");
    // Variations states
    const [colors, setColors] = useState("");
    const [sizes, setSizes] = useState("");
    const [version, setVersion] = useState("");
    const [themes, setThemes] = useState(""); 
    const [categories, setCategories] = useState(""); 
+   const [designs, setDesigns] = useState([ { ...emptyDesign } ]);
+   const [editingId, setEditingId] = useState(null);
+   const [editingIdFavourite, setEditingIdFavourite] = useState(false);
  
    // Designs (with shape instead of style)
-   const [designs, setDesigns] = useState([
-     { name: "", shape: "", price: "", category: "", imageUrl: "", categories: categories, favourite: false}
-   ]);
+  //  const [designs, setDesigns] = useState([
+  //    { name: "", shape: "", price: "", category: "", imageUrl: "", categories: categories, favourite: false}
+  //  ]);
 
-  const [editingId, setEditingId] = useState(null);
-  const [editingIdFavourite, setEditingIdFavourite] = useState(false);
+
 
   useEffect(() => {
     fetchHandbags();
@@ -62,13 +73,12 @@ const startEdit = (handbag) => {
     setDescription(handbag.description || "");
     setVideo(handbag.video || "");
     setPin(handbag.pin || "");
-   
     setColors((handbag.variations?.color || []).join(", "));
     setSizes((handbag.variations?.size || []).join(", "));
     setVersion(handbag.variations?.version || "");
     setThemes((handbag.variations?.theme || []).join(", "));
     setEditingIdFavourite(handbag.favourite || false);
-    //setCategories((handbag.categories || []).join(", "));
+    setCategories((handbag.categories || []).join(", "));
 
     setDesigns(
       (handbag.variations?.design && handbag.variations.design.length > 0)
@@ -76,12 +86,12 @@ const startEdit = (handbag) => {
             name: d.name || "",
             shape: d.shape || "",
             price: d.price != null ? d.price.toString() : "",
-            category: d.category || "",
-            imageUrl: d.imageUrl || "",
-            categories: d.categories || "",
+            categories: Array.isArray(d.categories) ? d.categories : (d.categories ? [d.categories] : []),
+            imageUrls: Array.isArray(d.imageUrls) ? d.imageUrls : (d.imageUrl ? [d.imageUrl] : []),
             favourite: d.favourite || false,
           }))
-        : [{ name: "", shape: "", price: "", category: "", imageUrl: "", categories:"" , favourite:false}]
+        // : [{ name: "", shape: "", price: "", category: "", imageUrl: "", categories:"" , favourite:false}]
+         : [ { ...emptyDesign } ]
     );
   };
  
@@ -89,20 +99,22 @@ const startEdit = (handbag) => {
   // Add or update handbag document
   const handleAddOrUpdateHandbag = async () => {
     if (!name) return alert("Handbag name is required");
-
- const cleanDesigns = designs
-  .filter(d => d.name || d.shape || d.price || d.category || d.imageUrl || d.categories)
+    const cleanDesigns = designs
+      .filter(d => 
+        d.name ||
+        d.shape || 
+        d.price || 
+        (Array.isArray(d.categories) && d.categories.length) ||
+       (Array.isArray(d.imageUrls) && d.imageUrls.length)
+      )
   .map(d => ({
     name: typeof d.name === "string" ? d.name.trim() : "",
     shape: typeof d.shape === "string" ? d.shape.trim() : "",
     price: parseFloat(d.price) || 0,
-    category: typeof d.category === "string" ? d.category.trim() : "",
-    imageUrl: typeof d.imageUrl === "string" ? d.imageUrl.trim() : "",
-    categories: typeof d.categories === "string" ? d.categories.trim() : "",
+    categories: Array.isArray(d.categories) ? d.categories.filter(Boolean) : [],
+    imageUrls: Array.isArray(d.imageUrls) ? d.imageUrls.filter(Boolean) : [],
     favourite: d.favourite || false,
   }));
-
-
 
     const variations = {
       color: colors.split(",").map((c) => c.trim()).filter(Boolean),
@@ -149,13 +161,13 @@ const startEdit = (handbag) => {
     setImageUrl("");
     setDescription("");
     setVideo("");
-   setPin("");
+    setPin("");
     setColors("");
     setSizes("");
     setVersion("");
     setThemes("");
-
-    setDesigns([{ name: "", shape: "", price: "", category: "", imageUrl: "" , categories:"", favourite:false}]);
+    setDesigns([ { ...emptyDesign } ]);
+   
   };
 
   // Handle input changes for design objects
@@ -167,7 +179,7 @@ const startEdit = (handbag) => {
 
   // Add a new empty design
    const addDesign = () => {
-    setDesigns([...designs, { name: "", shape: "", price: "", category: "", imageUrl: "",categories:"" , favourite: false}]);
+    setDesigns([...designs, { ...emptyDesign }]);
   };
   // Remove a design by index
   const removeDesign = (index) => {
@@ -224,11 +236,20 @@ const startEdit = (handbag) => {
     }
   };
 
+   // JSX starts here
   return (
-    <div style={{ maxWidth: 700, margin: "auto", padding: 20, fontFamily: "Arial, sans-serif" }}>
+    <div style={{ maxWidth: 1100, margin: "auto", padding: 20, fontFamily: "Arial, sans-serif" }}>
       <h2>Vendula London Handbags</h2>
+       <h2>{editingId ? "Edit" : "Add"} Handbag</h2>
 
       {/* Handbag Form */}
+      
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleAddOrUpdateHandbag();
+        }}
+        >
       <input
         style={{ width: "100%", padding: 8, marginBottom: 10 }}
         placeholder="design name"
@@ -362,6 +383,7 @@ const startEdit = (handbag) => {
             >
               {design.favourite ? "★" : "☆"}
             </button>
+         
           </div>
 
           <input
@@ -375,20 +397,33 @@ const startEdit = (handbag) => {
             type="number"
             placeholder="Price (GBP)"
             value={design.price}
+            min="0"
             onChange={(e) => handleDesignChange(index, "price", e.target.value)}
           />
-          <input
-            style={{ width: "100%", padding: 6, marginBottom: 8 }}
-            placeholder="Category"
-            value={design.category}
-            onChange={(e) => handleDesignChange(index, "category", e.target.value)}
-          />
-          <input
-            style={{ width: "100%", padding: 6, marginBottom: 8 }}
-            placeholder="Image URL"
-            value={design.imageUrl}
-            onChange={(e) => handleDesignChange(index, "imageUrl", e.target.value)}
-          />
+         <input
+         style={{ width: "100%", padding: 6, marginBottom: 8 }}
+              value={design.categories.join(", ")}
+              onChange={e =>
+                handleDesignChange(
+                  index,
+                  "categories",
+                  e.target.value.split(",").map(x => x.trim()).filter(Boolean)
+                )
+              }
+              placeholder="Categories (comma separated)"
+            />
+         <input
+         style={{ width: "100%", padding: 6, marginBottom: 8 }}
+              value={design.imageUrls.join(", ")}
+              onChange={e =>
+                handleDesignChange(
+                  index,
+                  "imageUrls",
+                  e.target.value.split(",").map(x => x.trim()).filter(Boolean)
+                )
+              }
+              placeholder="Image URLs (comma separated)"
+            />
           {designs.length > 1 && (
             <button
               style={{
@@ -404,6 +439,7 @@ const startEdit = (handbag) => {
               Remove
             </button>
           )}
+             
         </div>
       ))}
 
@@ -438,7 +474,7 @@ const startEdit = (handbag) => {
       >
         {editingId ? "Update Handbag" : "Add Handbag"}
       </button>
-
+   </form>
       <hr style={{ margin: "30px 0" }} />
 
       {/* Handbag list display */}
@@ -458,7 +494,7 @@ const startEdit = (handbag) => {
               }}
             >
               <div>
-               {h.id}
+               {h.id}<br />
                <strong style={{ fontSize: 18 }}>  {h.name}</strong> <i style={{ fontSize: 14, width:10 }}>{h.season || "N/A"}</i> {h.favourite && "⭐"}
               
               </div>
@@ -478,17 +514,17 @@ const startEdit = (handbag) => {
 
            
              <div>Range: {h.range || "N/A"}</div>
-              {/* <div>Description: {h.variations?.description || "N/A"}</div> */}
+            
             <div>Release Date: {h.releaseDate ? new Date(h.releaseDate).toLocaleDateString() : "N/A"}</div>
             <div>
-               {/* <div>Release Date: {h.releaseDate ? new Date(h.releaseDate).toLocaleDateString() : "N/A"}</div> */}
+           
             {/* <div>Image URL: {h.imageUrl ? (<a href={h.imageUrl} target="_blank" rel="noopener noreferrer">View Image</a>) : "N/A"}</div> */}
            
             <div>Colors: {(h.variations?.color || []).join(", ") || "N/A"}</div>
-            {/* <div>Sizes: {(h.variations?.size || []).join(", ") || "N/A"}</div> */}
+            <div>Sizes: {(h.variations?.size || []).join(", ") || "N/A"}</div>
             <div>Themes: {(h.variations?.theme || []).join(", ") || "N/A"}</div>
-            {/* <div>Version: {h.variations?.version || "N/A"}</div> */}
-            {/* <div>Description: {h.variations?.description || "N/A"}</div> */}
+            <div>Version: {h.variations?.version || "N/A"}</div>
+            <div>Description: {h.variations?.description || "N/A"}</div>
        
          {h.pin && (
                       
@@ -499,7 +535,7 @@ const startEdit = (handbag) => {
                         <img
                           src={h.imageUrl}
                           alt={h.name}
-                          style={{ width: 250, marginLeft: 15, borderRadius: 4, objectFit: "cover" }}
+                          style={{ width: 150, marginLeft: 15, borderRadius: 4, objectFit: "cover" }}
                         />
                       )}
 
@@ -512,10 +548,10 @@ const startEdit = (handbag) => {
 
  {h.video && (
     <iframe 
-    width="560" 
-    height="315" 
+    width="280" 
+    // height="315" 
     src={h.video}
-    title="YouTube video player" 
+    title={h.name}
     frameborder="0" 
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
 
