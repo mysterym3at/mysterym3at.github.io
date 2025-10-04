@@ -1,0 +1,7 @@
+{
+    "git.autorefresh": false,
+    "githubRepositories.autoFetch.enabled": false,
+    "git.enabled": true,
+    "git.blame.statusBarItem.enabled": false,
+    "git.decorations.enabled": false
+}
